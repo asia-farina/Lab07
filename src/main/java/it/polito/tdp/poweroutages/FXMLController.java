@@ -5,7 +5,10 @@
 package it.polito.tdp.poweroutages;
 
 import java.net.URL;
+import java.util.List;
 import java.util.ResourceBundle;
+
+import it.polito.tdp.poweroutages.model.Evento;
 import it.polito.tdp.poweroutages.model.Model;
 import it.polito.tdp.poweroutages.model.Nerc;
 import javafx.event.ActionEvent;
@@ -39,6 +42,39 @@ public class FXMLController {
     @FXML
     void doRun(ActionEvent event) {
     	txtResult.clear();
+    	String years=txtYears.getText();
+    	int anni;
+    	try {
+    		  anni=Integer.parseInt(years);
+    	} catch (Exception e) {
+    		txtResult.setText("Numero di anni non valido");
+    		return ;
+    	}
+    	String hours=txtHours.getText();
+    	int ore;
+    	try {
+    		ore=Integer.parseInt(hours);
+    	} catch (Exception e) {
+    		txtResult.setText("Numero di ore non valido");
+    		return ;
+    	}
+    	try {
+    		Nerc n=cmbNerc.getValue();
+    		List <Evento> eventi=model.worstCase(n, anni, ore);
+    		String s="";
+    		if (eventi==null) {
+    			txtResult.setText("Non ci sono soluzioni possibili");
+    			return ;
+    		}
+    		for (Evento e:eventi) {
+    			s+=e.toString()+"\n";
+    		}
+    		s+="Numero persone totali coinvolte: "+model.getWorst();
+    		txtResult.setText(s);
+    	} catch (NullPointerException e) {
+    		txtResult.setText("Seleziona un Nerc");
+    		return ;
+    	}
     }
 
     @FXML // This method is called by the FXMLLoader when initialization is complete
@@ -54,5 +90,6 @@ public class FXMLController {
     
     public void setModel(Model model) {
     	this.model = model;
+    	cmbNerc.getItems().addAll(model.getNercList());
     }
 }
